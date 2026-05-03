@@ -1,0 +1,47 @@
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Agenda</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <ion-card [color]="colaAlert() ? 'danger' : 'warning'" mode="ios">
+    <ion-card-content class="ion-flex ion-align-items-center">
+      <ion-icon [name]="colaAlert() ? 'alert-circle' : 'checkmark-circle'" size="large"></ion-icon>
+      <div class="ion-margin-start">
+        <ion-text>
+          <h3 style="margin: 0;"><b>{{ colaAlert() ? 'Trocar Cola Imediatamente!' : 'Cola em Uso' }}</b></h3>
+          <p style="margin: 0;">Aberta há {{ diasUso() }} dias.</p>
+        </ion-text>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <h5 class="ion-margin-top">Atendimentos de Hoje</h5>
+  
+  <ion-list lines="full">
+    @for (item of agendamentos(); track item.id) {
+      <ion-item>
+        <ion-label>
+          <h2>{{ item.clienteNome }}</h2>
+          <p>{{ item.tecnicaNome }}</p>
+        </ion-label>
+        <ion-text slot="end" color="primary">
+          <p><b>{{ item.horario }}</b></p>
+        </ion-text>
+      </ion-item>
+    } @empty {
+      <div class="ion-text-center ion-padding">
+        <p>Nenhum atendimento agendado.</p>
+      </div>
+    }
+  </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="abrirNovoAgendamento()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>

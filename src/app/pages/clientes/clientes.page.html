@@ -1,0 +1,36 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Meus Clientes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-searchbar 
+    placeholder="Buscar por nome..." 
+    (ionInput)="handleSearch($event)"
+    mode="ios">
+  </ion-searchbar>
+
+  <ion-list lines="full">
+    @for (c of clientesFiltrados(); track c.id) {
+      <ion-item button (click)="abrirCadastro(c)">
+        <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
+        <ion-label>
+          <h2>{{ c.nome }}</h2>
+          <p><ion-icon name="call-outline" size="small"></ion-icon> {{ c.telefone }}</p>
+        </ion-label>
+        <ion-note slot="end">Ver Ficha</ion-note>
+      </ion-item>
+    } @empty {
+      <div class="ion-text-center ion-padding">
+        <p>Nenhum cliente encontrado.</p>
+      </div>
+    }
+  </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="abrirCadastro()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

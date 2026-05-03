@@ -1,0 +1,18 @@
+/* Variáveis para o Modo Escuro */
+body.ion-palette-dark {
+  --ion-color-primary: #ce93d8;
+  --ion-color-primary-rgb: 206,147,216;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255,255,255;
+  --ion-color-primary-shade: #b582be;
+  --ion-color-primary-tint: #d39edc;
+
+  --ion-background-color: #121212;
+  --ion-background-color-rgb: 18,18,18;
+  --ion-text-color: #ffffff;
+  --ion-text-color-rgb: 255,255,255;
+
+  /* Isso garante que os itens da lista fiquem escuros também */
+  --ion-item-background: #1e1e1e;
+  --ion-card-background: #1e1e1e;
+}

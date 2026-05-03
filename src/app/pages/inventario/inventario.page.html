@@ -1,0 +1,56 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Inventário</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h5 class="ion-margin-bottom">Insumos Críticos</h5>
+
+  <ion-card mode="ios">
+    <ion-card-header>
+      <div class="ion-flex ion-justify-content-between ion-align-items-center">
+        <ion-card-title>Cola Principal</ion-card-title>
+        <ion-icon 
+          [name]="alertaCritico() ? 'alert-circle-outline' : 'checkmark-circle-outline'" 
+          [color]="alertaCritico() ? 'danger' : 'success'" 
+          size="large">
+        </ion-icon>
+      </div>
+    </ion-card-header>
+
+    <ion-card-content>
+      <p>Data de Abertura: <b>{{ colaInfo().dataAberturaCola | date:'dd/MM/yyyy' }}</b></p>
+      
+      <div class="ion-margin-vertical">
+        <div class="ion-flex ion-justify-content-between ion-margin-bottom">
+          <ion-text [color]="alertaCritico() ? 'danger' : 'dark'">
+            {{ diasUso() }} dias de uso
+          </ion-text>
+          <ion-note>Limite: 30 dias</ion-note>
+        </div>
+        
+        <ion-progress-bar 
+          [value]="progresso()" 
+          [color]="alertaCritico() ? 'danger' : 'primary'">
+        </ion-progress-bar>
+      </div>
+
+      <ion-button 
+        expand="block" 
+        fill="outline" 
+        color="dark" 
+        class="ion-margin-top"
+        (click)="abrirNovaCola()">
+        <ion-icon slot="start" name="refresh-outline"></ion-icon>
+        Abrir Nova Cola
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <div class="ion-padding ion-text-center">
+    <ion-note>
+      Dica: Trocar a cola a cada 30 dias garante a retenção ideal para suas clientes.
+    </ion-note>
+  </div>
+</ion-content>

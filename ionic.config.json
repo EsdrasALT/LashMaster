@@ -1,0 +1,7 @@
+{
+  "name": "LashMaster",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

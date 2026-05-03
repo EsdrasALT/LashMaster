@@ -1,0 +1,47 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/clientes"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Ficha de Anamnese</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h5 class="ion-margin-bottom">Dados Pessoais</h5>
+  
+  <ion-item fill="outline" mode="md" class="ion-margin-bottom">
+    <ion-label position="floating">Nome Completo</ion-label>
+    <ion-input type="text"></ion-input>
+  </ion-item>
+
+  <ion-item fill="outline" mode="md" class="ion-margin-bottom">
+    <ion-label position="floating">CEP (ViaCEP em breve)</ion-label>
+    <ion-input type="number"></ion-input>
+  </ion-item>
+
+  <ion-item fill="outline" mode="md" class="ion-margin-bottom">
+    <ion-label position="floating">Endereço</ion-label>
+    <ion-input type="text"></ion-input>
+  </ion-item>
+
+  <h5 class="ion-margin-top ion-margin-bottom">Histórico Técnico</h5>
+  
+  <ion-item fill="outline" mode="md" class="ion-margin-bottom">
+    <ion-label position="floating">Alergias conhecidas</ion-label>
+    <ion-textarea rows="3"></ion-textarea>
+  </ion-item>
+
+  <ion-item fill="outline" mode="md" class="ion-margin-bottom">
+    <ion-label position="floating">Formato do Olho / Design</ion-label>
+    <ion-select placeholder="Selecione">
+      <ion-select-option value="amendoado">Amendoado</ion-select-option>
+      <ion-select-option value="caido">Caído</ion-select-option>
+      <ion-select-option value="oriental">Oriental</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-button expand="block" color="primary" class="ion-margin-top">
+    Salvar Ficha de Cliente
+  </ion-button>
+</ion-content>
