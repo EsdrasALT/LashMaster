@@ -1,18 +1,22 @@
-/* Variáveis para o Modo Escuro */
+/* Tema Escuro acionado pela classe */
 body.ion-palette-dark {
+  /* Cores LashMaster Premium (Roxo claro) */
   --ion-color-primary: #ce93d8;
   --ion-color-primary-rgb: 206,147,216;
-  --ion-color-primary-contrast: #ffffff;
-  --ion-color-primary-contrast-rgb: 255,255,255;
-  --ion-color-primary-shade: #b582be;
-  --ion-color-primary-tint: #d39edc;
+  --ion-color-primary-contrast: #000000;
+  --ion-color-primary-contrast-rgb: 0,0,0;
+  --ion-color-primary-shade: #b581be;
+  --ion-color-primary-tint: #d39ee2;
 
+  /* Fundos Escuros Profundos */
   --ion-background-color: #121212;
   --ion-background-color-rgb: 18,18,18;
+
   --ion-text-color: #ffffff;
   --ion-text-color-rgb: 255,255,255;
 
-  /* Isso garante que os itens da lista fiquem escuros também */
-  --ion-item-background: #1e1e1e;
-  --ion-card-background: #1e1e1e;
+  /* Escala de cinza para cards e itens */
+  --ion-color-step-50: #1e1e1e;
+  --ion-color-step-100: #2a2a2a;
+  --ion-color-step-150: #363636;
 }

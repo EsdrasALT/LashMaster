@@ -3,6 +3,15 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
+    redirectTo: 'tabs',
+    pathMatch: 'full',
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./login/login.page').then(m => m.LoginPage),
+  },
+  {
+    path: 'tabs',
     loadComponent: () => import('./pages/tabs/tabs.page').then(m => m.TabsPage),
     children: [
       {
@@ -23,7 +32,7 @@ export const routes: Routes = [
       },
       {
         path: '',
-        redirectTo: '/agenda',
+        redirectTo: 'agenda',
         pathMatch: 'full',
       },
     ],
@@ -33,8 +42,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/cliente-detalhe/cliente-detalhe.page').then(m => m.ClienteDetalhePage),
   },
   {
-     path: 'cliente-detalhe', // Para criar um novo cliente
+    path: 'cliente-detalhe',
     loadComponent: () => import('./pages/cliente-detalhe/cliente-detalhe.page').then(m => m.ClienteDetalhePage),
-  }
-
+  },
 ];
