@@ -67,7 +67,15 @@
     <link rel="apple-touch-startup-image" href="assets/icons/apple-splash-1136-640.jpg" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
   </head>
   <body>
-    <app-root></app-root>
+    <app-root>
+      <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background-color: #121212;">
+        <div style="width: 50px; height: 50px; border: 4px solid #333; border-top: 4px solid #ce93d8; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <p style="color: #ce93d8; margin-top: 20px; font-family: sans-serif; font-weight: 500;">Carregando LashMaster...</p>
+      </div>
+      <style>
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      </style>
+    </app-root>
     <noscript>Por favor, habilite o JavaScript para continuar usando este aplicativo.</noscript>
   </body>
 </html>
