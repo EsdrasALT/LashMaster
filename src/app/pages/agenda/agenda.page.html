@@ -1,11 +1,30 @@
 <ion-header [translucent]="true" class="ion-no-border">
   <ion-toolbar>
     <ion-title>Agenda</ion-title>
+    
+    <!-- Botões agrupados à direita (end) do toolbar -->
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleTheme()">
+        <ion-icon slot="icon-only" [name]="themeService.isDarkMode ? 'sunny' : 'moon'"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
   
+  <div class="ion-padding-horizontal ion-margin-top" style="margin-bottom: 10px;">
+    <ion-text color="medium">
+      <p style="margin: 0; font-size: 0.9em;">
+        📍 Belo Horizonte | Umidade: <b>{{ umidadeAtual() ?? '--' }}%</b>
+      </p>
+      <h6 style="margin: 4px 0 0 0; font-weight: 500; color: var(--ion-text-color);">
+        ⚠️ {{ statusClimaticoCola() }}
+      </h6>
+    </ion-text>
+  </div>
+
   <ion-card [color]="colaAlert() ? 'danger' : 'warning'" mode="ios">
     <ion-card-content class="ion-flex ion-align-items-center">
       <ion-icon [name]="colaAlert() ? 'alert-circle' : 'checkmark-circle'" size="large"></ion-icon>

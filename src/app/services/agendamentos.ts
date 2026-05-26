@@ -1,18 +1,40 @@
-import { Injectable, signal } from '@angular/core';
-import { Agendamento } from '../models/types';
+import { Injectable, inject, signal } from '@angular/core';
+import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+
+// Definição da estrutura do objeto para o TypeScript
+export interface Agendamento {
+  id?: string;
+  clienteNome: string;
+  tecnicaNome: string;
+  horario: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AgendamentosService {
-  private lista = signal<Agendamento[]>([
-    { id: '1', clienteNome: 'Ana Silva', horario: '14:00', tecnicaNome: 'Volume Russo' },
-    { id: '2', clienteNome: 'Beatriz Costa', horario: '16:30', tecnicaNome: 'Fio a Fio Clássico' }
-  ]);
+  private firestore = inject(Firestore);
+  
+  // O Signal que a sua AgendaPage já lê permanece com o mesmo nome
+  agendas = signal<Agendamento[]>([]);
 
-  agendas = this.lista.asReadonly();
+  constructor() {
+    this.escutarAgendamentosDoBanco();
+  }
 
-  adicionar(novo: Agendamento) {
-    this.lista.update(atual => [...atual, novo]);
+  private escutarAgendamentosDoBanco() {
+    // Aponta para a coleção 'agendamentos' no Firestore
+    const colecaoRef = collection(this.firestore, 'agendamentos');
+    
+    // Liga o escutador em tempo real. O 'idField' injeta o ID do documento no objeto
+    collectionData(colecaoRef, { idField: 'id' }).subscribe({
+      next: (dadosDoBanco) => {
+        // Atualiza o Signal automaticamente. A tela vai reagir sozinha!
+        this.agendas.set(dadosDoBanco as Agendamento[]);
+      },
+      error: (erro) => {
+        console.error('Erro ao conectar com o Firestore:', erro);
+      }
+    });
   }
 }

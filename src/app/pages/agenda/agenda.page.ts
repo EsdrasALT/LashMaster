@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { 
   IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent, 
-  IonIcon, IonText, IonList, IonItem, IonLabel, IonFab, IonFabButton, ModalController 
+  IonIcon, IonButtons, IonButton, IonText, IonList, IonItem, IonLabel, IonFab, IonFabButton, ModalController 
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
@@ -10,6 +10,7 @@ import { InventarioService } from '../../services/inventario';
 import { AgendamentoModalComponent } from './agendamento-modal.component';
 import { AgendamentosService } from '../../services/agendamentos';
 import { ThemeService } from '../../services/theme';
+import { WeatherService } from '../../services/weather.service'; // Ajuste o caminho se necessário
 
 @Component({
   selector: 'app-agenda',
@@ -17,7 +18,7 @@ import { ThemeService } from '../../services/theme';
   standalone: true,
   imports: [
     CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, 
-    IonCardContent, IonIcon, IonText, IonList, IonItem, IonLabel, IonFab, IonFabButton
+    IonCardContent, IonButtons, IonButton, IonIcon, IonText, IonList, IonItem, IonLabel, IonFab, IonFabButton
     // REMOVA AgendamentoModalComponent DAQUI[cite: 3]
   ]
 })
@@ -25,7 +26,8 @@ export class AgendaPage {
   private invService = inject(InventarioService);
   private modalCtrl = inject(ModalController);
   private agendaService = inject(AgendamentosService);
-  themeService = inject(ThemeService);
+  private weatherService = inject(WeatherService);
+  public themeService = inject(ThemeService);
 
   // Signals para o Banner
   colaAlert = this.invService.alertaCritico;
@@ -35,8 +37,11 @@ export class AgendaPage {
   agendamentos = this.agendaService.agendas;
 
   constructor() {
-    addIcons({ add, checkmarkCircle, alertCircle });
+    //addIcons({ add, checkmarkCircle, alertCircle });
   }
+
+  umidadeAtual = this.weatherService.umidade;
+  statusClimaticoCola = this.weatherService.statusCola;
 
   async abrirNovoAgendamento() {
     const modal = await this.modalCtrl.create({
@@ -45,5 +50,7 @@ export class AgendaPage {
     return await modal.present();
   }
 
-  
+  toggleTheme() {
+    this.themeService.toggleDarkMode();
+  }  
 }
