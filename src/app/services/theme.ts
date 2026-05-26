@@ -1,43 +1,72 @@
-import { Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { addIcons } from 'ionicons';
-import { sunny, moon } from 'ionicons/icons';
+// import { Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
+// import { BehaviorSubject } from 'rxjs';
+// import { addIcons } from 'ionicons';
+// import { sunny, moon } from 'ionicons/icons';
 
 
-@Injectable({
-  providedIn: 'root'
-})
+// @Injectable({
+//   providedIn: 'root'
+// })
+// export class ThemeService {
+//   private renderer: Renderer2;
+//   private rendererFactory = inject(RendererFactory2);
+  
+//   // Estado reativo do tema
+//   private darkMode = new BehaviorSubject<boolean>(false);
+//   darkMode$ = this.darkMode.asObservable();
+
+//   constructor() {
+//     this.renderer = this.rendererFactory.createRenderer(null, null);
+//     addIcons({ sunny, moon });
+    
+//     // Inicializa com a preferência do sistema
+//     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+//     this.setTheme(prefersDark.matches);
+//   }
+
+//   toggleDarkMode() {
+//     this.setTheme(!this.darkMode.value);
+//   }
+
+//   private setTheme(isDark: boolean) {
+//     this.darkMode.next(isDark);
+//     if (isDark) {
+//       this.renderer.addClass(document.body, 'ion-palette-dark');
+//     } else {
+//       this.renderer.removeClass(document.body, 'ion-palette-dark');
+//     }
+//   }
+
+//   get isDarkMode() {
+//     return this.darkMode.value;
+//   }
+// }
+
+import { Injectable, Renderer2, RendererFactory2, inject, signal } from '@angular/core';
+
+@Injectable({ providedIn: 'root' })
 export class ThemeService {
   private renderer: Renderer2;
   private rendererFactory = inject(RendererFactory2);
-  
-  // Estado reativo do tema
-  private darkMode = new BehaviorSubject<boolean>(false);
-  darkMode$ = this.darkMode.asObservable();
+
+  private _isDarkMode = signal<boolean>(false);
+  readonly isDarkMode = this._isDarkMode.asReadonly();
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
-    addIcons({ sunny, moon });
-    
-    // Inicializa com a preferência do sistema
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-    this.setTheme(prefersDark.matches);
+    this.setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
   }
 
   toggleDarkMode() {
-    this.setTheme(!this.darkMode.value);
+    this.setTheme(!this._isDarkMode());
   }
 
   private setTheme(isDark: boolean) {
-    this.darkMode.next(isDark);
+    this._isDarkMode.set(isDark);
     if (isDark) {
       this.renderer.addClass(document.body, 'ion-palette-dark');
     } else {
       this.renderer.removeClass(document.body, 'ion-palette-dark');
     }
-  }
-
-  get isDarkMode() {
-    return this.darkMode.value;
   }
 }

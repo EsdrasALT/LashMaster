@@ -26,5 +26,17 @@
         ]
       }
     }
+  ],
+  "dataGroups": [
+    {
+      "name": "weather-api",
+      "urls": ["https://api.open-meteo.com/**"],
+      "cacheConfig": {
+      "maxSize": 5,
+      "maxAge": "1h",
+      "timeout": "5s",
+      "strategy": "performance"
+      }
+    }
   ]
 }

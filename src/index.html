@@ -5,11 +5,14 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>LashMaster</title>
-    
-    <link rel="preconnect" href="https://lashmaster-app.firebaseapp.com" crossorigin>
+
+    <!-- Firestore e APIs do Google — conexão estabelecida antes das requests -->
     <link rel="preconnect" href="https://www.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://api.open-meteo.com" crossorigin>
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+
+    <!-- DNS-prefetch para domínios secundários -->
+    <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com">
+    <link rel="dns-prefetch" href="https://api.open-meteo.com">
 
     <meta name="description" content="LashMaster - O aplicativo definitivo para gestão e agendamento de extensão de cílios.">
     <base href="/">

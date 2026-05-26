@@ -4,7 +4,7 @@
     
     <ion-buttons slot="end">
       <ion-button (click)="toggleTheme()" aria-label="Alternar tema claro e escuro">
-        <ion-icon slot="icon-only" [name]="themeService.isDarkMode ? 'sunny' : 'moon'"></ion-icon>
+        <ion-icon slot="icon-only" [name]="themeService.isDarkMode() ? 'sunny' : 'moon'"></ion-icon>
       </ion-button>
     </ion-buttons>
     

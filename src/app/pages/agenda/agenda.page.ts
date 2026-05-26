@@ -4,10 +4,11 @@ import {
   IonIcon, IonButtons, IonButton, IonText, IonList, IonItem, IonLabel, IonFab, IonFabButton, ModalController 
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
+
 import { addIcons } from 'ionicons';
-import { add, checkmarkCircle, alertCircle } from 'ionicons/icons';
+import { add, checkmarkCircle, alertCircle, sunny, moon } from 'ionicons/icons';
+
 import { InventarioService } from '../../services/inventario';
-import { AgendamentoModalComponent } from './agendamento-modal.component';
 import { AgendamentosService } from '../../services/agendamentos';
 import { ThemeService } from '../../services/theme';
 import { WeatherService } from '../../services/weather.service'; // Ajuste o caminho se necessário
@@ -37,20 +38,24 @@ export class AgendaPage {
   agendamentos = this.agendaService.agendas;
 
   constructor() {
-    //addIcons({ add, checkmarkCircle, alertCircle });
+    addIcons({ add, checkmarkCircle, alertCircle, sunny, moon });
   }
 
   umidadeAtual = this.weatherService.umidade;
   statusClimaticoCola = this.weatherService.statusCola;
 
   async abrirNovoAgendamento() {
+    const { AgendamentoModalComponent } = await import(
+      './agendamento-modal.component'
+    );
     const modal = await this.modalCtrl.create({
-      component: AgendamentoModalComponent
+      component: AgendamentoModalComponent,
     });
     return await modal.present();
   }
 
-  toggleTheme() {
+    toggleTheme() {
     this.themeService.toggleDarkMode();
-  }  
+  } 
+
 }

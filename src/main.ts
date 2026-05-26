@@ -8,7 +8,7 @@ import { AppComponent } from './app/app.component';
 // --- IMPORTAÇÕES DO FIREBASE ---
 import { environment } from './environments/environment';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { provideAuth, getAuth } from '@angular/fire/auth';
+
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 
 // --- IMPORTAÇÕES DO PWA ---
@@ -23,13 +23,13 @@ bootstrapApplication(AppComponent, {
 
     // --- INICIALIZAÇÃO DO FIREBASE ---
     provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideAuth(() => getAuth()),
+
     provideFirestore(() => getFirestore()), 
     
     // --- INICIALIZAÇÃO DO PWA / SERVICE WORKER ---
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000'
+      registrationStrategy: 'registerWhenStable:5000'
     }),
   ],
 }).catch(err => console.error(err));
