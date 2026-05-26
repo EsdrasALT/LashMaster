@@ -15,7 +15,10 @@ export class WeatherService {
   private url = `https://api.open-meteo.com/v1/forecast?latitude=${this.lat}&longitude=${this.lon}&current=relative_humidity_2m,temperature_2m`;
 
   constructor() {
-    this.buscarDadosClimaticos();
+    // ALTERAÇÃO: Aguarda 2 segundos (2000ms) após a inicialização do app para rodar a requisição
+    setTimeout(() => {
+      this.buscarDadosClimaticos();
+    }, 7000);
   }
 
   async buscarDadosClimaticos() {

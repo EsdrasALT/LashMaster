@@ -18,10 +18,12 @@ export class AgendamentosService {
   // O Signal que a sua AgendaPage já lê permanece com o mesmo nome
   agendas = signal<Agendamento[]>([]);
 
-  constructor() {
-    this.escutarAgendamentosDoBanco();
+constructor() {
+    // CORREÇÃO: Aguarda 3 segundos para abrir a conexão com o Firestore, liberando o LCP
+    setTimeout(() => {
+      this.escutarAgendamentosDoBanco();
+    }, 7000);
   }
-
   private escutarAgendamentosDoBanco() {
     // Aponta para a coleção 'agendamentos' no Firestore
     const colecaoRef = collection(this.firestore, 'agendamentos');

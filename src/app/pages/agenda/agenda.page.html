@@ -2,9 +2,8 @@
   <ion-toolbar>
     <ion-title>Agenda</ion-title>
     
-    <!-- Botões agrupados à direita (end) do toolbar -->
     <ion-buttons slot="end">
-      <ion-button (click)="toggleTheme()">
+      <ion-button (click)="toggleTheme()" aria-label="Alternar tema claro e escuro">
         <ion-icon slot="icon-only" [name]="themeService.isDarkMode ? 'sunny' : 'moon'"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -19,9 +18,9 @@
       <p style="margin: 0; font-size: 0.9em;">
         📍 Belo Horizonte | Umidade: <b>{{ umidadeAtual() ?? '--' }}%</b>
       </p>
-      <h6 style="margin: 4px 0 0 0; font-weight: 500; color: var(--ion-text-color);">
+      <p style="margin: 4px 0 0 0; font-weight: 600; font-size: 1em; color: var(--ion-text-color);">
         ⚠️ {{ statusClimaticoCola() }}
-      </h6>
+      </p>
     </ion-text>
   </div>
 
@@ -30,35 +29,37 @@
       <ion-icon [name]="colaAlert() ? 'alert-circle' : 'checkmark-circle'" size="large"></ion-icon>
       <div class="ion-margin-start">
         <ion-text>
-          <h3 style="margin: 0;"><b>{{ colaAlert() ? 'Trocar Cola Imediatamente!' : 'Cola em Uso' }}</b></h3>
+          <h2 style="margin: 0; font-size: 1.4em;"><b>{{ colaAlert() ? 'Trocar Cola Imediatamente!' : 'Cola em Uso' }}</b></h2>
           <p style="margin: 0;">Aberta há {{ diasUso() }} dias.</p>
         </ion-text>
       </div>
     </ion-card-content>
   </ion-card>
 
-  <h5 class="ion-margin-top">Atendimentos de Hoje</h5>
+  <h3 class="ion-margin-top" style="font-size: 1.2em; font-weight: 600; padding-left: 8px;">Atendimentos de Hoje</h3>
   
-  <ion-list lines="full">
-    @for (item of agendamentos(); track item.id) {
-      <ion-item>
-        <ion-label>
-          <h2>{{ item.clienteNome }}</h2>
-          <p>{{ item.tecnicaNome }}</p>
-        </ion-label>
-        <ion-text slot="end" color="primary">
-          <p><b>{{ item.horario }}</b></p>
-        </ion-text>
-      </ion-item>
-    } @empty {
-      <div class="ion-text-center ion-padding">
-        <p>Nenhum atendimento agendado.</p>
-      </div>
-    }
-  </ion-list>
+  @if (agendamentos().length > 0) {
+    <ion-list lines="full">
+      @for (item of agendamentos(); track item.id) {
+        <ion-item>
+          <ion-label>
+            <h2>{{ item.clienteNome }}</h2>
+            <p>{{ item.tecnicaNome }}</p>
+          </ion-label>
+          <ion-text slot="end" color="primary">
+            <p><b>{{ item.horario }}</b></p>
+          </ion-text>
+        </ion-item>
+      }
+    </ion-list>
+  } @else {
+    <div class="ion-text-center ion-padding">
+      <p>Nenhum atendimento agendado.</p>
+    </div>
+  }
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="abrirNovoAgendamento()">
+    <ion-fab-button (click)="abrirNovoAgendamento()" aria-label="Adicionar novo agendamento">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>
