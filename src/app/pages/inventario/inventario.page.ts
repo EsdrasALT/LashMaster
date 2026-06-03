@@ -7,6 +7,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { addIcons } from 'ionicons';
 import { refreshOutline, alertCircleOutline, checkmarkCircleOutline } from 'ionicons/icons';
 import { InventarioService } from '../../services/inventario';
+import { NativeToastService } from 'src/app/services/native-toast.service';
 
 @Component({
   selector: 'app-inventario',
@@ -21,6 +22,7 @@ import { InventarioService } from '../../services/inventario';
 })
 export class InventarioPage {
   private invService = inject(InventarioService);
+  private toastNativo = inject(NativeToastService); // 1. Injeta o serviço
 
   // Vinculando os Signals do Service para a UI
   colaInfo = this.invService.colaInfo;
@@ -34,5 +36,11 @@ export class InventarioPage {
 
   abrirNovaCola() {
     this.invService.resetarCola();
+  }
+
+  verificarValidade() {
+    if (this.diasUso() > 30) {
+      this.toastNativo.disparar('❌ Urgente: A cola atingiu 30 dias de uso. Troque-a agora!');
+    }
   }
 }

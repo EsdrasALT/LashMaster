@@ -1,5 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { afterNextRender } from '@angular/core';
+import { NativeToastService } from './native-toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class WeatherService {
@@ -18,6 +19,8 @@ export class WeatherService {
     });
   }
 
+  private toastNativo = inject(NativeToastService); // 1. Injeta o serviço
+
   async buscarDadosClimaticos() {
     try {
       const resposta = await fetch(this.url);
@@ -33,6 +36,7 @@ export class WeatherService {
         this.statusCola.set('Ar muito seco! A cola pode demorar a secar.');
       } else {
         this.statusCola.set('Ar muito úmido! A cola pode secar rápido demais.');
+        this.toastNativo.disparar('⚠️ Alerta de Clima: A secagem da sua cola foi afetada!');
       }
     } catch {
       this.statusCola.set('Não foi possível carregar os dados de umidade.');

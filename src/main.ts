@@ -9,7 +9,8 @@ import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { getApp } from '@angular/fire/app';
+import { provideFirestore, initializeFirestore, persistentLocalCache } from '@angular/fire/firestore';
 
 // --- IMPORTAÇÕES DO PWA ---
 import { isDevMode } from '@angular/core';
@@ -24,7 +25,9 @@ bootstrapApplication(AppComponent, {
     // --- INICIALIZAÇÃO DO FIREBASE ---
     provideFirebaseApp(() => initializeApp(environment.firebase)),
 
-    provideFirestore(() => getFirestore()), 
+    provideFirestore(() => initializeFirestore(getApp(), { 
+          localCache: persistentLocalCache() 
+    })),
     
     // --- INICIALIZAÇÃO DO PWA / SERVICE WORKER ---
     provideServiceWorker('ngsw-worker.js', {

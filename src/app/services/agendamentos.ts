@@ -1,5 +1,6 @@
+// src/app/services/agendamentos.ts
 import { Injectable, inject, signal, OnDestroy } from '@angular/core';
-import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, addDoc } from '@angular/fire/firestore';
 import { afterNextRender } from '@angular/core';
 import { Subscription } from 'rxjs';
 
@@ -18,10 +19,7 @@ export class AgendamentosService implements OnDestroy {
   agendas = signal<Agendamento[]>([]);
 
   constructor() {
-    // Dispara APÓS o primeiro render — sem delay artificial
-    afterNextRender(() => {
-      this.escutarAgendamentosDoBanco();
-    });
+    this.escutarAgendamentosDoBanco(); // Chamada direta!
   }
 
   private escutarAgendamentosDoBanco() {
@@ -32,8 +30,13 @@ export class AgendamentosService implements OnDestroy {
     });
   }
 
+  // --- NOVO: salva um agendamento no Firestore ---
+  async adicionar(agendamento: Omit<Agendamento, 'id'>): Promise<void> {
+    const colecaoRef = collection(this.firestore, 'agendamentos');
+    await addDoc(colecaoRef, agendamento);
+  }
+
   ngOnDestroy() {
-    // Evita memory leak — fecha a conexão quando o service é destruído
     this.subscription?.unsubscribe();
   }
 }

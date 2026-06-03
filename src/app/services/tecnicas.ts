@@ -1,34 +1,50 @@
-import { Injectable, signal } from '@angular/core';
+// src/app/services/tecnicas.ts
+import { Injectable, inject, signal, OnDestroy } from '@angular/core';
+import {
+  Firestore, collection, collectionData,
+  addDoc, updateDoc, deleteDoc, doc
+} from '@angular/fire/firestore';
+import { afterNextRender } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Tecnica } from '../models/types';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class TecnicasService {
-  // Lista inicial de exemplo
-  private lista = signal<Tecnica[]>([
-    { id: '1', nome: 'Volume Russo', preco: 150.00, tempoEstimado: '2h 00m' },
-    { id: '2', nome: 'Fio a Fio', preco: 120.00, tempoEstimado: '1h 30m' },
-  ]);
+@Injectable({ providedIn: 'root' })
+export class TecnicasService implements OnDestroy {
+  private firestore = inject(Firestore);
+  private subscription?: Subscription;
 
-  // Signal público para leitura
-  tecnicas = this.lista.asReadonly();
+  private lista = signal<Tecnica[]>([]);
+  tecnicas = this.lista.asReadonly();   // API pública idêntica à versão anterior
 
-  // Método para deletar
-  deletar(id: string) {
-    this.lista.update(atual => atual.filter(t => t.id !== id));
+  constructor() {
+    this.escutar(); // Chamada direta!
   }
 
-  // Método para adicionar (usaremos na próxima sub-tarefa)
-  adicionar(nova: Tecnica) {
-    this.lista.update(atual => [...atual, nova]);
+  private escutar() {
+    const ref = collection(this.firestore, 'tecnicas');
+    this.subscription = collectionData(ref, { idField: 'id' }).subscribe({
+      next:  (dados) => this.lista.set(dados as Tecnica[]),
+      error: (err)   => console.error('Erro técnicas:', err),
+    });
   }
 
-    // Adicione este método dentro da classe TecnicasService no seu arquivo tecnicas.ts
-  atualizar(editada: Tecnica) {
-    this.lista.update(atual => 
-      atual.map(t => t.id === editada.id ? editada : t)
-    );
+  async adicionar(nova: Omit<Tecnica, 'id'>): Promise<void> {
+    const ref = collection(this.firestore, 'tecnicas');
+    await addDoc(ref, nova);
+  }
+
+  async atualizar(editada: Tecnica): Promise<void> {
+    const { id, ...dados } = editada;
+    const ref = doc(this.firestore, 'tecnicas', id);
+    await updateDoc(ref, dados as Record<string, any>);
+  }
+
+  async deletar(id: string): Promise<void> {
+    const ref = doc(this.firestore, 'tecnicas', id);
+    await deleteDoc(ref);
+  }
+
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
   }
 }
-

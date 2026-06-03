@@ -1,39 +1,50 @@
-import { Injectable, signal } from '@angular/core';
+// src/app/services/clientes.ts
+import { Injectable, inject, signal, OnDestroy } from '@angular/core';
+import {
+  Firestore, collection, collectionData,
+  addDoc, updateDoc, deleteDoc, doc
+} from '@angular/fire/firestore';
+import { afterNextRender } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Cliente } from '../models/types';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class ClientesService {
-  // Lista inicial vazia ou com um exemplo
-  private lista = signal<Cliente[]>([
-    {
-      id: '1',
-      nome: 'Mariana Oliveira',
-      telefone: '11999999999',
-      cep: '01001000',
-      endereco: 'Praça da Sé, São Paulo - SP',
-      anamnese: {
-        alergias: 'Nenhuma',
-        formatoOlho: 'Amendoado',
-        observacoes: 'Sensibilidade leve no olho esquerdo.'
-      }
-    }
-  ]);
+@Injectable({ providedIn: 'root' })
+export class ClientesService implements OnDestroy {
+  private firestore = inject(Firestore);
+  private subscription?: Subscription;
 
+  private lista = signal<Cliente[]>([]);
   clientes = this.lista.asReadonly();
 
-  adicionar(novo: Cliente) {
-    this.lista.update(atual => [...atual, novo]);
+  constructor() {
+    this.escutar(); // Chamada direta!
   }
 
-  atualizar(editado: Cliente) {
-    this.lista.update(atual => 
-      atual.map(c => c.id === editado.id ? editado : c)
-    );
+  private escutar() {
+    const ref = collection(this.firestore, 'clientes');
+    this.subscription = collectionData(ref, { idField: 'id' }).subscribe({
+      next:  (dados) => this.lista.set(dados as Cliente[]),
+      error: (err)   => console.error('Erro clientes:', err),
+    });
   }
 
-  remover(id: string) {
-    this.lista.update(atual => atual.filter(c => c.id !== id));
+  async adicionar(novo: Omit<Cliente, 'id'>): Promise<void> {
+    const ref = collection(this.firestore, 'clientes');
+    await addDoc(ref, novo);
+  }
+
+  async atualizar(editado: Cliente): Promise<void> {
+    const { id, ...dados } = editado;
+    const ref = doc(this.firestore, 'clientes', id);
+    await updateDoc(ref, dados as Record<string, any>);
+  }
+
+  async remover(id: string): Promise<void> {
+    const ref = doc(this.firestore, 'clientes', id);
+    await deleteDoc(ref);
+  }
+
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
   }
 }

@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { 
   IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, 
   IonLabel, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonText,
-  IonFab, IonFabButton, ModalController // Adicionei IonFab e IonFabButton aqui
+  IonFab, IonFabButton, ModalController
 } from '@ionic/angular/standalone';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { addIcons } from 'ionicons';
@@ -11,6 +11,9 @@ import { TecnicasService } from '../../services/tecnicas';
 import { TecnicaModalComponent } from './tecnica-modal.component';
 import { Tecnica } from '../../models/types';
 
+// INJEÇÃO DO TOAST NATIVO
+import { NativeToastService } from '../../services/native-toast.service';
+
 @Component({
   selector: 'app-tecnicas',
   templateUrl: './tecnicas.page.html',
@@ -18,13 +21,14 @@ import { Tecnica } from '../../models/types';
   imports: [
     CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, 
     IonItem, IonLabel, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonText,
-    IonFab, IonFabButton // E adicionei eles aqui também na lista de imports do componente
+    IonFab, IonFabButton
   ],
   providers: [CurrencyPipe]
 })
 export class TecnicasPage {
   private tecnicasService = inject(TecnicasService);
   private modalCtrl = inject(ModalController);
+  private toast = inject(NativeToastService); // Instanciando o Toast
   
   listaTecnicas = this.tecnicasService.tecnicas;
 
@@ -41,16 +45,29 @@ export class TecnicasPage {
     await modal.present();
 
     const { data } = await modal.onWillDismiss();
+    
+    // TRATAMENTO DE ERROS E SINCRONISMO
     if (data) {
-      if (tecnica) {
-        this.tecnicasService.atualizar(data);
-      } else {
-        this.tecnicasService.adicionar(data);
+      try {
+        if (tecnica) {
+          await this.tecnicasService.atualizar(data);
+          this.toast.disparar('Técnica atualizada com sucesso!');
+        } else {
+          await this.tecnicasService.adicionar(data);
+          this.toast.disparar('Técnica adicionada com sucesso!');
+        }
+      } catch (error) {
+        this.toast.disparar('Erro ao salvar. Verifique sua conexão.');
       }
     }
   }
 
-  remover(id: string) {
-    this.tecnicasService.deletar(id);
+  async remover(id: string) {
+    try {
+      await this.tecnicasService.deletar(id);
+      this.toast.disparar('Técnica removida!');
+    } catch (error) {
+      this.toast.disparar('Erro ao remover técnica.');
+    }
   }
 }

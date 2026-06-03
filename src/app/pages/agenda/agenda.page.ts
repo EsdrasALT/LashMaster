@@ -12,6 +12,7 @@ import { InventarioService } from '../../services/inventario';
 import { AgendamentosService } from '../../services/agendamentos';
 import { ThemeService } from '../../services/theme';
 import { WeatherService } from '../../services/weather.service'; // Ajuste o caminho se necessário
+import { NativeToastService } from 'src/app/services/native-toast.service';
 
 @Component({
   selector: 'app-agenda',
@@ -29,6 +30,7 @@ export class AgendaPage {
   private agendaService = inject(AgendamentosService);
   private weatherService = inject(WeatherService);
   public themeService = inject(ThemeService);
+  private toastNativo = inject(NativeToastService); // 1. Injeta o serviço
 
   // Signals para o Banner
   colaAlert = this.invService.alertaCritico;
@@ -58,4 +60,9 @@ export class AgendaPage {
     this.themeService.toggleDarkMode();
   } 
 
+  confirmarAgendamento() {
+     // ... salva no banco ...
+     this.toastNativo.disparar('✅ Cliente agendada com sucesso!');
+  }
+  
 }
