@@ -1,8 +1,5 @@
-// src/app/services/agendamentos.ts
-import { Injectable, inject, signal, OnDestroy } from '@angular/core';
-import { Firestore, collection, collectionData, addDoc } from '@angular/fire/firestore';
-import { afterNextRender } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Injectable, inject, Injector, signal, OnDestroy, runInInjectionContext } from '@angular/core';
+import { Firestore, collection, addDoc, doc, deleteDoc, onSnapshot } from '@angular/fire/firestore';
 
 export interface Agendamento {
   id?: string;
@@ -14,29 +11,38 @@ export interface Agendamento {
 @Injectable({ providedIn: 'root' })
 export class AgendamentosService implements OnDestroy {
   private firestore = inject(Firestore);
-  private subscription?: Subscription;
+  private injector = inject(Injector);
+  private unsubscribe?: () => void;
 
   agendas = signal<Agendamento[]>([]);
 
   constructor() {
-    this.escutarAgendamentosDoBanco(); // Chamada direta!
+    this.escutarAgendamentosDoBanco();
   }
 
   private escutarAgendamentosDoBanco() {
-    const colecaoRef = collection(this.firestore, 'agendamentos');
-    this.subscription = collectionData(colecaoRef, { idField: 'id' }).subscribe({
-      next: (dados) => this.agendas.set(dados as Agendamento[]),
-      error: (erro) => console.error('Erro ao conectar com o Firestore:', erro),
+    const ref = collection(this.firestore, 'agendamentos');
+    this.unsubscribe = onSnapshot(ref, (snapshot) => {
+      const dados = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Agendamento));
+      this.agendas.set(dados);
+    }, (erro) => console.error('Erro agendamentos:', erro));
+  }
+
+  async adicionar(agendamento: Omit<Agendamento, 'id'>): Promise<void> {
+    await runInInjectionContext(this.injector, async () => {
+      const ref = collection(this.firestore, 'agendamentos');
+      await addDoc(ref, agendamento);
     });
   }
 
-  // --- NOVO: salva um agendamento no Firestore ---
-  async adicionar(agendamento: Omit<Agendamento, 'id'>): Promise<void> {
-    const colecaoRef = collection(this.firestore, 'agendamentos');
-    await addDoc(colecaoRef, agendamento);
+  async deletar(id: string): Promise<void> {
+    await runInInjectionContext(this.injector, async () => {
+      const ref = doc(this.firestore, 'agendamentos', id);
+      await deleteDoc(ref);
+    });
   }
 
   ngOnDestroy() {
-    this.subscription?.unsubscribe();
+    if (this.unsubscribe) this.unsubscribe();
   }
 }

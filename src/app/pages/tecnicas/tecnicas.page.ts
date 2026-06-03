@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, NgZone } from '@angular/core';
 import { 
   IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, 
   IonLabel, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonText,
@@ -10,8 +10,6 @@ import { trash, create, timeOutline, cashOutline, add } from 'ionicons/icons';
 import { TecnicasService } from '../../services/tecnicas';
 import { TecnicaModalComponent } from './tecnica-modal.component';
 import { Tecnica } from '../../models/types';
-
-// INJEÇÃO DO TOAST NATIVO
 import { NativeToastService } from '../../services/native-toast.service';
 
 @Component({
@@ -28,7 +26,8 @@ import { NativeToastService } from '../../services/native-toast.service';
 export class TecnicasPage {
   private tecnicasService = inject(TecnicasService);
   private modalCtrl = inject(ModalController);
-  private toast = inject(NativeToastService); // Instanciando o Toast
+  private toast = inject(NativeToastService);
+  private zone = inject(NgZone); // <-- AQUI
   
   listaTecnicas = this.tecnicasService.tecnicas;
 
@@ -37,27 +36,25 @@ export class TecnicasPage {
   }
 
   async abrirModal(tecnica?: Tecnica) {
+    (document.activeElement as HTMLElement)?.blur(); // <-- LIMPA O FOCO AQUI
+    
     const modal = await this.modalCtrl.create({
       component: TecnicaModalComponent,
       componentProps: { tecnica }
     });
-
     await modal.present();
 
     const { data } = await modal.onWillDismiss();
-    
-    // TRATAMENTO DE ERROS E SINCRONISMO
     if (data) {
       try {
         if (tecnica) {
           await this.tecnicasService.atualizar(data);
-          this.toast.disparar('Técnica atualizada com sucesso!');
         } else {
           await this.tecnicasService.adicionar(data);
-          this.toast.disparar('Técnica adicionada com sucesso!');
         }
+        this.zone.run(() => this.toast.disparar('Técnica salva com sucesso!'));
       } catch (error) {
-        this.toast.disparar('Erro ao salvar. Verifique sua conexão.');
+        this.zone.run(() => this.toast.disparar('Erro ao salvar técnica.'));
       }
     }
   }
@@ -65,9 +62,10 @@ export class TecnicasPage {
   async remover(id: string) {
     try {
       await this.tecnicasService.deletar(id);
-      this.toast.disparar('Técnica removida!');
+      // Força o Angular a fechar o item e dar o toast
+      this.zone.run(() => this.toast.disparar('Técnica removida!'));
     } catch (error) {
-      this.toast.disparar('Erro ao remover técnica.');
+      this.zone.run(() => this.toast.disparar('Erro ao remover técnica.'));
     }
   }
 }

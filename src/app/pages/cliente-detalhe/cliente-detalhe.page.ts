@@ -1,15 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular/standalone';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, 
   IonBackButton, IonItem, IonLabel, IonInput, IonTextarea, 
-  IonSelect, IonSelectOption, IonButton, 
+  IonSelect, IonSelectOption, IonButton 
 } from '@ionic/angular/standalone';
 
-// IMPORTAÇÕES DA ARQUITETURA LASHMASTER
 import { ClientesService } from '../../services/clientes';
 import { NativeToastService } from '../../services/native-toast.service';
 import { Cliente } from '../../models/types';
@@ -31,22 +30,15 @@ export class ClienteDetalhePage implements OnInit {
   private clientesService = inject(ClientesService);
   private toast = inject(NativeToastService);
   private route = inject(ActivatedRoute);
-  private navCtrl = inject(NavController);
+  private router = inject(Router);
+  private zone = inject(NgZone); // <-- O SALVADOR DA THREAD
 
   clienteId: string | null = null;
   salvando = false;
 
-  // Estrutura de dados base ligada ao HTML via ngModel
   cliente: Cliente = {
-    nome: '',
-    telefone: '',
-    cep: '',
-    endereco: '',
-    anamnese: {
-      alergias: '',
-      formatoOlho: '',
-      observacoes: ''
-    },
+    nome: '', telefone: '', cep: '', endereco: '',
+    anamnese: { alergias: '', formatoOlho: '', observacoes: '' },
     id: ''
   };
 
@@ -55,19 +47,14 @@ export class ClienteDetalhePage implements OnInit {
   }
 
   ngOnInit() {
-    // Intercepta a URL para verificar se é Edição ou Criação
     this.clienteId = this.route.snapshot.paramMap.get('id');
-    
     if (this.clienteId) {
-      // Busca o cliente diretamente do Signal do serviço
       const clienteExistente = this.clientesService.clientes().find(c => c.id === this.clienteId);
-      
       if (clienteExistente) {
-        // Clona o objeto para não causar mutações acidentais no estado global antes do salvamento
         this.cliente = JSON.parse(JSON.stringify(clienteExistente));
       } else {
-        this.toast.disparar('Cliente não encontrada no banco de dados.');
-        this.navCtrl.back();
+        this.toast.disparar('Cliente não encontrada.');
+        this.router.navigate(['/tabs/clientes']);
       }
     }
   }
@@ -77,39 +64,39 @@ export class ClienteDetalhePage implements OnInit {
       this.toast.disparar('O nome da cliente é obrigatório!');
       return;
     }
-
     this.salvando = true;
 
     try {
       if (this.clienteId) {
-        // Dispara a rotina de atualização (UPDATE)
         await this.clientesService.atualizar(this.cliente);
-        this.toast.disparar('Ficha da cliente atualizada com sucesso!');
       } else {
-        // Extrai o 'id' vazio e envia apenas o resto dos dados para o Firebase
-        const { id, ...dadosNovaCliente } = this.cliente;        
-        // Dispara a rotina de criação (INSERT)
+        const { id, ...dadosNovaCliente } = this.cliente;
         await this.clientesService.adicionar(dadosNovaCliente);
-        this.toast.disparar('Nova cliente cadastrada com sucesso!');
       }
-      this.navCtrl.back(); // Retorna automaticamente para a lista
+      
+      // FORÇA O ANGULAR A ATUALIZAR A TELA
+      this.zone.run(() => {
+        this.toast.disparar(this.clienteId ? 'Ficha atualizada!' : 'Cliente cadastrada!');
+        this.router.navigate(['/tabs/clientes']);
+      });
+
     } catch (error) {
-      this.toast.disparar('Erro ao salvar. Verifique sua conexão.');
+      this.zone.run(() => this.toast.disparar('Erro ao salvar. Verifique sua conexão.'));
     } finally {
-      this.salvando = false;
+      this.zone.run(() => this.salvando = false);
     }
   }
 
   async remover() {
     if (!this.clienteId) return;
-
     try {
-      // Dispara a rotina de exclusão (DELETE)
       await this.clientesService.remover(this.clienteId);
-      this.toast.disparar('Ficha excluída permanentemente.');
-      this.navCtrl.back();
+      this.zone.run(() => {
+        this.toast.disparar('Ficha excluída permanentemente.');
+        this.router.navigate(['/tabs/clientes']);
+      });
     } catch (error) {
-      this.toast.disparar('Erro ao tentar remover a cliente.');
+      this.zone.run(() => this.toast.disparar('Erro ao tentar remover a cliente.'));
     }
   }
 }

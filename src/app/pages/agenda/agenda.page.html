@@ -1,18 +1,17 @@
+<!-- src/app/pages/agenda/agenda.page.html -->
 <ion-header [translucent]="true" class="ion-no-border">
   <ion-toolbar>
     <ion-title>Agenda</ion-title>
-    
     <ion-buttons slot="end">
       <ion-button (click)="toggleTheme()" aria-label="Alternar tema claro e escuro">
         <ion-icon slot="icon-only" [name]="themeService.isDarkMode() ? 'sunny' : 'moon'"></ion-icon>
       </ion-button>
     </ion-buttons>
-    
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-  
+
   <div class="ion-padding-horizontal ion-margin-top" style="margin-bottom: 10px;">
     <ion-text color="medium">
       <p style="margin: 0; font-size: 0.9em;">
@@ -29,27 +28,44 @@
       <ion-icon [name]="colaAlert() ? 'alert-circle' : 'checkmark-circle'" size="large"></ion-icon>
       <div class="ion-margin-start">
         <ion-text>
-          <h2 style="margin: 0; font-size: 1.4em;"><b>{{ colaAlert() ? 'Trocar Cola Imediatamente!' : 'Cola em Uso' }}</b></h2>
+          <h2 style="margin: 0; font-size: 1.4em;">
+            <b>{{ colaAlert() ? 'Trocar Cola Imediatamente!' : 'Cola em Uso' }}</b>
+          </h2>
           <p style="margin: 0;">Aberta há {{ diasUso() }} dias.</p>
         </ion-text>
       </div>
     </ion-card-content>
   </ion-card>
 
-  <h3 class="ion-margin-top" style="font-size: 1.2em; font-weight: 600; padding-left: 8px;">Atendimentos de Hoje</h3>
-  
+  <h3 class="ion-margin-top" style="font-size: 1.2em; font-weight: 600; padding-left: 8px;">
+    Atendimentos de Hoje
+  </h3>
+
   @if (agendamentos().length > 0) {
     <ion-list lines="full">
       @for (item of agendamentos(); track item.id) {
-        <ion-item>
-          <ion-label>
-            <h2>{{ item.clienteNome }}</h2>
-            <p>{{ item.tecnicaNome }}</p>
-          </ion-label>
-          <ion-text slot="end" color="primary">
-            <p><b>{{ item.horario }}</b></p>
-          </ion-text>
-        </ion-item>
+
+        <!-- Deslize para a esquerda para revelar o botão de exclusão -->
+        <ion-item-sliding>
+
+          <ion-item>
+            <ion-label>
+              <h2>{{ item.clienteNome }}</h2>
+              <p>{{ item.tecnicaNome }}</p>
+            </ion-label>
+            <ion-text slot="end" color="primary">
+              <p><b>{{ item.horario }}</b></p>
+            </ion-text>
+          </ion-item>
+
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="remover(item.id!)">
+              <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>
+
+        </ion-item-sliding>
+
       }
     </ion-list>
   } @else {

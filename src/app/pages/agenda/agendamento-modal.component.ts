@@ -1,5 +1,4 @@
-// src/app/pages/agenda/agendamento-modal.component.ts
-import { Component, inject } from '@angular/core';
+import { Component, inject, NgZone } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import {
@@ -9,6 +8,7 @@ import {
 import { ModalController } from '@ionic/angular/standalone';
 import { AgendamentosService } from '../../services/agendamentos';
 import { TecnicasService } from '../../services/tecnicas';
+import { ClientesService } from '../../services/clientes'; // <-- Importado!
 import { NativeToastService } from '../../services/native-toast.service';
 
 @Component({
@@ -32,11 +32,14 @@ import { NativeToastService } from '../../services/native-toast.service';
     <ion-content class="ion-padding">
 
       <ion-item class="ion-margin-bottom">
-        <ion-label position="stacked">Nome da Cliente</ion-label>
-        <ion-input
-          placeholder="Digite o nome"
-          [(ngModel)]="clienteNome">
-        </ion-input>
+        <ion-label position="stacked">Selecione a Cliente</ion-label>
+        <ion-select placeholder="Escolha uma cliente" [(ngModel)]="clienteNome">
+          @for (cliente of clientesService.clientes(); track cliente.id) {
+            <ion-select-option [value]="cliente.nome">
+              {{ cliente.nome }}
+            </ion-select-option>
+          }
+        </ion-select>
       </ion-item>
 
       <ion-item class="ion-margin-bottom">
@@ -66,10 +69,12 @@ import { NativeToastService } from '../../services/native-toast.service';
   `
 })
 export class AgendamentoModalComponent {
-  private modalCtrl      = inject(ModalController);
-  private agendaService  = inject(AgendamentosService);
-  protected tecnicasService = inject(TecnicasService);  // protected: acessível no template
-  private toast          = inject(NativeToastService);
+  private modalCtrl       = inject(ModalController);
+  private agendaService   = inject(AgendamentosService);
+  protected tecnicasService = inject(TecnicasService);
+  protected clientesService = inject(ClientesService); // <-- Injetado!
+  private toast           = inject(NativeToastService);
+  private zone            = inject(NgZone); // <-- AQUI
 
   clienteNome        = '';
   tecnicaSelecionada = '';
@@ -81,7 +86,7 @@ export class AgendamentoModalComponent {
   }
 
   async agendar() {
-    if (!this.clienteNome.trim() || !this.tecnicaSelecionada || !this.horario) {
+    if (!this.clienteNome || !this.tecnicaSelecionada || !this.horario) {
       await this.toast.disparar('Preencha todos os campos antes de agendar.');
       return;
     }
@@ -89,16 +94,19 @@ export class AgendamentoModalComponent {
     this.salvando = true;
     try {
       await this.agendaService.adicionar({
-        clienteNome:  this.clienteNome.trim(),
+        clienteNome:  this.clienteNome,
         tecnicaNome:  this.tecnicaSelecionada,
         horario:      this.horario,
       });
-      await this.toast.disparar('Agendamento salvo com sucesso!');
-      this.modalCtrl.dismiss({ salvo: true });
+
+      this.zone.run(() => {
+        this.toast.disparar('Agendamento salvo com sucesso!');
+        this.modalCtrl.dismiss({ salvo: true });
+      });
     } catch {
-      await this.toast.disparar('Erro ao salvar. Verifique sua conexão.');
+      this.zone.run(() => this.toast.disparar('Erro ao salvar. Verifique sua conexão.'));
     } finally {
-      this.salvando = false;
+      this.zone.run(() => this.salvando = false);
     }
   }
-}
+} 

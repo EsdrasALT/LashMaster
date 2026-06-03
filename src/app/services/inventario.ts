@@ -1,12 +1,6 @@
-// src/app/services/inventario.ts
-import { Injectable, inject, signal, computed, OnDestroy } from '@angular/core';
-import {
-  Firestore, doc, docData, setDoc, Timestamp
-} from '@angular/fire/firestore';
-import { afterNextRender } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Injectable, inject, Injector, signal, computed, OnDestroy, runInInjectionContext } from '@angular/core';
+import { Firestore, doc, setDoc, onSnapshot, Timestamp } from '@angular/fire/firestore';
 
-// Formato interno do Firestore para este documento
 interface InventarioDoc {
   dataAberturaCola: Timestamp | null;
   diasValidade: number;
@@ -15,18 +9,15 @@ interface InventarioDoc {
 @Injectable({ providedIn: 'root' })
 export class InventarioService implements OnDestroy {
   private firestore = inject(Firestore);
-  private subscription?: Subscription;
-
-  // Caminho fixo: coleção "inventario", documento "config" (documento único)
+  private injector = inject(Injector); // Fornece o contexto de injeção
+  private unsubscribe?: () => void;
   private readonly DOC_PATH = 'inventario/config';
 
-  // Estado interno com ISO string — mesma interface que a versão anterior
   private state = signal<{ dataAberturaCola: string | null; diasValidade: number }>({
     dataAberturaCola: null,
     diasValidade: 30,
   });
 
-  // --- Computed públicos: API idêntica à versão anterior ---
   colaInfo       = computed(() => this.state());
   diasDecorridos = computed(() => {
     const abertura = this.state().dataAberturaCola;
@@ -38,36 +29,33 @@ export class InventarioService implements OnDestroy {
   progressoUso   = computed(() => Math.min(this.diasDecorridos() / 30, 1));
 
   constructor() {
-    this.escutar(); // Chamada direta!
+    this.escutar();
   }
 
   private escutar() {
     const ref = doc(this.firestore, this.DOC_PATH);
-    this.subscription = docData(ref).subscribe({
-      next: (dados) => {
-        if (!dados) return;  // documento ainda não existe no Firestore — mantém default
-        const d = dados as InventarioDoc;
-        this.state.set({
-          dataAberturaCola: d.dataAberturaCola
-            ? d.dataAberturaCola.toDate().toISOString()
-            : null,
-          diasValidade: d.diasValidade ?? 30,
-        });
-      },
-      error: (err) => console.error('Erro inventário:', err),
+    this.unsubscribe = onSnapshot(ref, (snap) => {
+      if (!snap.exists()) return;
+      const d = snap.data() as InventarioDoc;
+      this.state.set({
+        dataAberturaCola: d.dataAberturaCola ? d.dataAberturaCola.toDate().toISOString() : null,
+        diasValidade: d.diasValidade ?? 30,
+      });
+    }, (err) => console.error('Erro inventário:', err));
+  }
+
+  async resetarCola(): Promise<void> {
+    // Executa a operação dentro do contexto seguro do Angular
+    await runInInjectionContext(this.injector, async () => {
+      const ref = doc(this.firestore, this.DOC_PATH);
+      await setDoc(ref, {
+        dataAberturaCola: Timestamp.fromDate(new Date()),
+        diasValidade: 30,
+      }, { merge: true });
     });
   }
 
-  // Grava/atualiza a data de abertura no Firestore
-  async resetarCola(): Promise<void> {
-    const ref = doc(this.firestore, this.DOC_PATH);
-    await setDoc(ref, {
-      dataAberturaCola: Timestamp.fromDate(new Date()),
-      diasValidade: 30,
-    }, { merge: true });
-  }
-
   ngOnDestroy() {
-    this.subscription?.unsubscribe();
+    if (this.unsubscribe) this.unsubscribe();
   }
 }

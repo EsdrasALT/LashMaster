@@ -44,6 +44,8 @@ export class ClientesPage {
 
   // Método que chamaremos na próxima etapa
   abrirCadastro(cliente?: Cliente) {
+    (document.activeElement as HTMLElement)?.blur(); // <-- LIMPA O FOCO AQUI
+    
     if (cliente) {
       this.router.navigate(['/cliente-detalhe', cliente.id]);
     } else {
