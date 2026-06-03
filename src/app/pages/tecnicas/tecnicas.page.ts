@@ -1,8 +1,8 @@
-import { Component, inject, NgZone } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { 
   IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, 
   IonLabel, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonText,
-  IonFab, IonFabButton, ModalController
+  IonFab, IonFabButton, ModalController 
 } from '@ionic/angular/standalone';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { addIcons } from 'ionicons';
@@ -27,7 +27,6 @@ export class TecnicasPage {
   private tecnicasService = inject(TecnicasService);
   private modalCtrl = inject(ModalController);
   private toast = inject(NativeToastService);
-  private zone = inject(NgZone); // <-- AQUI
   
   listaTecnicas = this.tecnicasService.tecnicas;
 
@@ -36,12 +35,13 @@ export class TecnicasPage {
   }
 
   async abrirModal(tecnica?: Tecnica) {
-    (document.activeElement as HTMLElement)?.blur(); // <-- LIMPA O FOCO AQUI
-    
+    (document.activeElement as HTMLElement)?.blur(); // Remove o conflito de foco visual (aria-hidden)
+
     const modal = await this.modalCtrl.create({
       component: TecnicaModalComponent,
       componentProps: { tecnica }
     });
+
     await modal.present();
 
     const { data } = await modal.onWillDismiss();
@@ -49,23 +49,27 @@ export class TecnicasPage {
       try {
         if (tecnica) {
           await this.tecnicasService.atualizar(data);
+          this.toast.disparar('Técnica atualizada com sucesso!');
         } else {
           await this.tecnicasService.adicionar(data);
+          this.toast.disparar('Técnica adicionada com sucesso!');
         }
-        this.zone.run(() => this.toast.disparar('Técnica salva com sucesso!'));
       } catch (error) {
-        this.zone.run(() => this.toast.disparar('Erro ao salvar técnica.'));
+        this.toast.disparar('Erro ao salvar técnica.');
       }
     }
   }
 
   async remover(id: string) {
+    console.log('[DEBUG 1] PAGE: Botão excluir clicado. ID recebido do HTML:', id);
     try {
+      console.log('[DEBUG 2] PAGE: Chamando tecnicasService.deletar()...');
       await this.tecnicasService.deletar(id);
-      // Força o Angular a fechar o item e dar o toast
-      this.zone.run(() => this.toast.disparar('Técnica removida!'));
+      console.log('[DEBUG 5] PAGE: Firebase concluiu a exclusão com sucesso!');
+      this.toast.disparar('Técnica removida com sucesso!');
     } catch (error) {
-      this.zone.run(() => this.toast.disparar('Erro ao remover técnica.'));
+      console.error('[DEBUG ERRO] PAGE: Falha na exclusão:', error);
+      this.toast.disparar('Erro ao tentar remover.');
     }
   }
 }
