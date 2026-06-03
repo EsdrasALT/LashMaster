@@ -1,9 +1,9 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/clientes"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/clientes"></ion-back-button>
     </ion-buttons>
-    <ion-title>Ficha de Anamnese</ion-title>
+    <ion-title>{{ clienteId ? 'Editar Cliente' : 'Nova Cliente' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -12,36 +12,48 @@
   
   <ion-item fill="outline" mode="md" class="ion-margin-bottom">
     <ion-label position="floating">Nome Completo</ion-label>
-    <ion-input type="text"></ion-input>
+    <ion-input type="text" [(ngModel)]="cliente.nome"></ion-input>
+  </ion-item>
+
+  <ion-item fill="outline" mode="md" class="ion-margin-bottom">
+    <ion-label position="floating">Telefone</ion-label>
+    <ion-input type="tel" [(ngModel)]="cliente.telefone"></ion-input>
   </ion-item>
 
   <ion-item fill="outline" mode="md" class="ion-margin-bottom">
     <ion-label position="floating">CEP (ViaCEP em breve)</ion-label>
-    <ion-input type="number"></ion-input>
+    <ion-input type="number" [(ngModel)]="cliente.cep"></ion-input>
   </ion-item>
 
   <ion-item fill="outline" mode="md" class="ion-margin-bottom">
     <ion-label position="floating">Endereço</ion-label>
-    <ion-input type="text"></ion-input>
+    <ion-input type="text" [(ngModel)]="cliente.endereco"></ion-input>
   </ion-item>
 
   <h5 class="ion-margin-top ion-margin-bottom">Histórico Técnico</h5>
   
   <ion-item fill="outline" mode="md" class="ion-margin-bottom">
     <ion-label position="floating">Alergias conhecidas</ion-label>
-    <ion-textarea rows="3"></ion-textarea>
+    <ion-textarea rows="3" [(ngModel)]="cliente.anamnese.alergias"></ion-textarea>
   </ion-item>
 
   <ion-item fill="outline" mode="md" class="ion-margin-bottom">
     <ion-label position="floating">Formato do Olho / Design</ion-label>
-    <ion-select placeholder="Selecione">
+    <ion-select placeholder="Selecione" [(ngModel)]="cliente.anamnese.formatoOlho">
       <ion-select-option value="amendoado">Amendoado</ion-select-option>
       <ion-select-option value="caido">Caído</ion-select-option>
       <ion-select-option value="oriental">Oriental</ion-select-option>
     </ion-select>
   </ion-item>
 
-  <ion-button expand="block" color="primary" class="ion-margin-top">
-    Salvar Ficha de Cliente
+  <ion-button expand="block" color="primary" class="ion-margin-top" (click)="salvar()" [disabled]="salvando">
+    {{ salvando ? 'Salvando...' : 'Salvar Ficha de Cliente' }}
   </ion-button>
+
+  @if (clienteId) {
+    <ion-button expand="block" color="danger" fill="clear" class="ion-margin-top" (click)="remover()">
+      <ion-icon name="trash-outline" slot="start"></ion-icon>
+      Excluir Cliente Permanentemente
+    </ion-button>
+  }
 </ion-content>

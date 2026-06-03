@@ -41,4 +41,8 @@ export const routes: Routes = [
     path: 'cliente-detalhe',
     loadComponent: () => import('./pages/cliente-detalhe/cliente-detalhe.page').then(m => m.ClienteDetalhePage),
   },
+  {
+    path: 'cliente-detalhe/:id', // <-- ESSA É A ROTA QUE PERMITE A EDIÇÃO
+    loadComponent: () => import('./pages/cliente-detalhe/cliente-detalhe.page').then(m => m.ClienteDetalhePage),
+  },
 ];

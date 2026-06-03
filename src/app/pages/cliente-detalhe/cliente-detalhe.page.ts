@@ -6,7 +6,7 @@ import { NavController } from '@ionic/angular/standalone';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, 
   IonBackButton, IonItem, IonLabel, IonInput, IonTextarea, 
-  IonSelect, IonSelectOption, IonButton 
+  IonSelect, IonSelectOption, IonButton, IonIcon
 } from '@ionic/angular/standalone';
 
 import { ClientesService } from '../../services/clientes';
@@ -23,7 +23,7 @@ import { saveOutline, trashOutline } from 'ionicons/icons';
   imports: [
     IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, 
     IonBackButton, IonItem, IonLabel, IonInput, IonTextarea, 
-    IonSelect, IonSelectOption, IonButton, CommonModule, FormsModule
+    IonSelect, IonSelectOption, IonButton, IonIcon, CommonModule, FormsModule
   ]
 })
 export class ClienteDetalhePage implements OnInit {
@@ -60,27 +60,34 @@ export class ClienteDetalhePage implements OnInit {
   }
 
   async salvar() {
+    console.log('[DEBUG 1] PAGE: Botão salvar clicado. Dados recebidos do HTML:', JSON.stringify(this.cliente));
+
     if (!this.cliente.nome.trim()) {
+      console.warn('[DEBUG 2] PAGE: Salvamento bloqueado. O campo Nome estava vazio.');
       this.toast.disparar('O nome da cliente é obrigatório!');
       return;
     }
+    
     this.salvando = true;
 
     try {
       if (this.clienteId) {
+        console.log('[DEBUG 3] PAGE: Iniciando UPDATE do cliente existente ID:', this.clienteId);
         await this.clientesService.atualizar(this.cliente);
       } else {
+        console.log('[DEBUG 3] PAGE: Iniciando INSERT de nova cliente...');
         const { id, ...dadosNovaCliente } = this.cliente;
         await this.clientesService.adicionar(dadosNovaCliente);
       }
       
-      // FORÇA O ANGULAR A ATUALIZAR A TELA
+      console.log('[DEBUG 4] PAGE: Firebase retornou sucesso! Fechando a tela...');
       this.zone.run(() => {
         this.toast.disparar(this.clienteId ? 'Ficha atualizada!' : 'Cliente cadastrada!');
         this.router.navigate(['/tabs/clientes']);
       });
 
     } catch (error) {
+      console.error('[DEBUG ERRO] PAGE: Ocorreu uma falha na comunicação com o banco:', error);
       this.zone.run(() => this.toast.disparar('Erro ao salvar. Verifique sua conexão.'));
     } finally {
       this.zone.run(() => this.salvando = false);
