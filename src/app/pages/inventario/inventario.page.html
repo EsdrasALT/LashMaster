@@ -20,8 +20,28 @@
     </ion-card-header>
 
     <ion-card-content>
-      <p>Data de Abertura: <b>{{ colaInfo().dataAberturaCola | date:'dd/MM/yyyy' }}</b></p>
       
+      <div class="ion-margin-bottom">
+        <p style="margin: 0 0 8px 0; color: var(--ion-color-medium);">Data de Abertura:</p>
+        <div style="display: flex; justify-content: flex-start;">
+          <ion-datetime-button datetime="data-cola"></ion-datetime-button>
+        </div>
+      </div>
+
+      <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime 
+            id="data-cola" 
+            presentation="date" 
+            [value]="getDataAtualFormatada()"
+            (ionChange)="alterarData($event)"
+            doneText="Confirmar"
+            cancelText="Cancelar"
+            showDefaultButtons="true">
+          </ion-datetime>
+        </ng-template>
+      </ion-modal>
+
       <div class="ion-margin-vertical">
         <div class="ion-flex ion-justify-content-between ion-margin-bottom">
           <ion-text [color]="alertaCritico() ? 'danger' : 'dark'">

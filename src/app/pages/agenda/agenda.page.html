@@ -1,4 +1,3 @@
-<!-- src/app/pages/agenda/agenda.page.html -->
 <ion-header [translucent]="true" class="ion-no-border">
   <ion-toolbar>
     <ion-title>Agenda</ion-title>
@@ -41,20 +40,19 @@
     Atendimentos de Hoje
   </h3>
 
-  @if (agendamentos().length > 0) {
+  @if (agendamentosHoje().length > 0) {
     <ion-list lines="full">
-      @for (item of agendamentos(); track item.id) {
-
-        <!-- Deslize para a esquerda para revelar o botão de exclusão -->
+      @for (item of agendamentosHoje(); track item.id) {
         <ion-item-sliding>
-
-          <ion-item>
+          
+          <ion-item button detail="true" (click)="abrirModalAgendamento(item)">
             <ion-label>
               <h2>{{ item.clienteNome }}</h2>
               <p>{{ item.tecnicaNome }}</p>
             </ion-label>
-            <ion-text slot="end" color="primary">
-              <p><b>{{ item.horario }}</b></p>
+            <ion-text slot="end" class="ion-text-right">
+              <p style="margin: 0; font-size: 0.85em; color: var(--ion-color-medium);">Hoje</p>
+              <p style="margin: 4px 0 0 0; color: var(--ion-color-primary);"><b>{{ item.horario }}</b></p>
             </ion-text>
           </ion-item>
 
@@ -63,19 +61,49 @@
               <ion-icon slot="icon-only" name="trash"></ion-icon>
             </ion-item-option>
           </ion-item-options>
-
         </ion-item-sliding>
-
       }
     </ion-list>
   } @else {
-    <div class="ion-text-center ion-padding">
-      <p>Nenhum atendimento agendado.</p>
+    <div class="ion-text-center ion-padding" style="background: var(--ion-color-step-50); border-radius: 8px;">
+      <p style="margin:0; color: var(--ion-color-medium);">Nenhum atendimento agendado para hoje.</p>
     </div>
   }
 
+  @if (agendamentosFuturos().length > 0) {
+    <h3 class="ion-margin-top" style="font-size: 1.2em; font-weight: 600; padding-left: 8px; margin-top: 30px;">
+      Atendimentos Agendados
+    </h3>
+
+    <ion-list lines="full">
+      @for (item of agendamentosFuturos(); track item.id) {
+        <ion-item-sliding>
+          
+          <ion-item button detail="true" (click)="abrirModalAgendamento(item)">
+            <ion-label>
+              <h2>{{ item.clienteNome }}</h2>
+              <p>{{ item.tecnicaNome }}</p>
+            </ion-label>
+            <ion-text slot="end" class="ion-text-right">
+              <p style="margin: 0; font-size: 0.85em; color: var(--ion-color-medium);">
+                {{ item.data | date:'dd/MM/yyyy':'UTC' }}
+              </p>
+              <p style="margin: 4px 0 0 0; color: var(--ion-color-primary);"><b>{{ item.horario }}</b></p>
+            </ion-text>
+          </ion-item>
+
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="remover(item.id!)">
+              <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      }
+    </ion-list>
+  }
+
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="abrirNovoAgendamento()" aria-label="Adicionar novo agendamento">
+    <ion-fab-button (click)="abrirModalAgendamento()" aria-label="Adicionar novo agendamento">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>

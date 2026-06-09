@@ -1,8 +1,8 @@
 export interface Tecnica {
   id: string;
   nome: string;
-  preco: number;
-  tempoEstimado: string; // Ex: "1h 30m"
+  valor: number;     // <-- ADICIONE ESTA LINHA
+  duracao: string;   // <-- ADICIONE ESTA LINHA
 }
 
 export interface Cliente {

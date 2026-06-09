@@ -1,5 +1,4 @@
-// src/app/pages/agenda/agenda.page.ts
-import { Component, inject, NgZone } from '@angular/core';
+import { Component, inject, NgZone, computed } from '@angular/core';
 import { 
   IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent, 
   IonIcon, IonButtons, IonButton, IonText, IonList, IonItem, IonLabel,
@@ -24,7 +23,7 @@ import { NativeToastService } from '../../services/native-toast.service';
     IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent,
     IonButtons, IonButton, IonIcon, IonText, IonList, IonItem, IonLabel,
     IonFab, IonFabButton,
-    IonItemSliding, IonItemOptions, IonItemOption  // necessários para swipe-to-delete
+    IonItemSliding, IonItemOptions, IonItemOption
   ]
 })
 export class AgendaPage {
@@ -38,7 +37,6 @@ export class AgendaPage {
 
   colaAlert           = this.invService.alertaCritico;
   diasUso             = this.invService.diasDecorridos;
-  agendamentos        = this.agendaService.agendas;
   umidadeAtual        = this.weatherService.umidade;
   statusClimaticoCola = this.weatherService.statusCola;
 
@@ -46,12 +44,55 @@ export class AgendaPage {
     addIcons({ add, checkmarkCircle, alertCircle, trash, moon, sunny });
   }
 
-  async abrirNovoAgendamento() {
-    (document.activeElement as HTMLElement)?.blur(); // <-- LIMPA O FOCO AQUI
+  // Helper para pegar a data de hoje no mesmo formato do Input (YYYY-MM-DD)
+  private getHojeString(): string {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoje.getDate()).padStart(2, '0');
+    return `${ano}-${mes}-${dia}`;
+  }
+
+  // LISTA 1: Apenas os agendamentos com a data de Hoje (Ordenados por horário)
+  agendamentosHoje = computed(() => {
+    const hoje = this.getHojeString();
+    return this.agendaService.agendas()
+      .filter(a => a.data === hoje)
+      .sort((a, b) => {
+        // Fallback de segurança para dados antigos
+        const horarioA = a.horario || '';
+        const horarioB = b.horario || '';
+        return horarioA.localeCompare(horarioB);
+      });
+  });
+
+  // LISTA 2: Agendamentos de outras datas ou sem data (Ordenados por data e depois horário)
+  agendamentosFuturos = computed(() => {
+    const hoje = this.getHojeString();
+    return this.agendaService.agendas()
+      .filter(a => a.data !== hoje)
+      .sort((a, b) => {
+        // Fallback de segurança para dados antigos (Legacy Data)
+        const dataA = a.data || '';
+        const dataB = b.data || '';
+        const horarioA = a.horario || '';
+        const horarioB = b.horario || '';
+
+        if (dataA === dataB) {
+          return horarioA.localeCompare(horarioB);
+        }
+        return dataA.localeCompare(dataB);
+      });
+  });
+
+// Substitua a função abrirNovoAgendamento por esta:
+  async abrirModalAgendamento(agendamento?: any) {
+    (document.activeElement as HTMLElement)?.blur();
     
     const { AgendamentoModalComponent } = await import('./agendamento-modal.component');
     const modal = await this.modalCtrl.create({
-      component: AgendamentoModalComponent
+      component: AgendamentoModalComponent,
+      componentProps: { agendamentoEdit: agendamento } // Passa os dados se for edição
     });
     return await modal.present();
   }

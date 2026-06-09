@@ -1,10 +1,12 @@
 import { Injectable, inject, Injector, signal, OnDestroy, runInInjectionContext } from '@angular/core';
-import { Firestore, collection, addDoc, doc, deleteDoc, onSnapshot } from '@angular/fire/firestore';
+// Adicionado o updateDoc na importação abaixo:
+import { Firestore, collection, addDoc, doc, deleteDoc, updateDoc, onSnapshot } from '@angular/fire/firestore';
 
 export interface Agendamento {
   id?: string;
   clienteNome: string;
   tecnicaNome: string;
+  data: string;
   horario: string;
 }
 
@@ -35,6 +37,15 @@ export class AgendamentosService implements OnDestroy {
     });
   }
 
+  // NOVA FUNÇÃO DE ATUALIZAÇÃO
+  async atualizar(editado: Agendamento): Promise<void> {
+    await runInInjectionContext(this.injector, async () => {
+      const { id, ...dados } = editado;
+      const ref = doc(this.firestore, 'agendamentos', id!);
+      await updateDoc(ref, dados as Record<string, any>);
+    });
+  }
+  
   async deletar(id: string): Promise<void> {
     await runInInjectionContext(this.injector, async () => {
       const ref = doc(this.firestore, 'agendamentos', id);

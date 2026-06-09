@@ -1,4 +1,4 @@
-<ion-header class="ion-no-border">
+<!-- <ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-title>Técnicas</ion-title>
   </ion-toolbar>
@@ -42,4 +42,50 @@
     </ion-fab-button>
   </ion-fab>
   
+</ion-content> -->
+
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Técnicas e Valores</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  @if (listaTecnicas().length > 0) {
+    <ion-list lines="full">
+      @for (item of listaTecnicas(); track item.id) {
+        <ion-item-sliding>
+          
+          <ion-item button detail="true" (click)="abrirModal(item)">
+            <ion-label>
+              <h2>{{ item.nome }}</h2>
+              <p>⏱ {{ item.duracao }}</p>
+            </ion-label>
+            <ion-text slot="end" color="primary">
+              <p style="margin: 0; font-size: 1.1em;"><b>{{ item.valor | currency:'BRL' }}</b></p>
+            </ion-text>
+          </ion-item>
+
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="remover(item.id!)">
+              <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>
+
+        </ion-item-sliding>
+      }
+    </ion-list>
+  } @else {
+    <div class="ion-text-center ion-padding" style="background: var(--ion-color-step-50); border-radius: 8px;">
+      <p style="margin:0; color: var(--ion-color-medium);">Nenhuma técnica cadastrada.</p>
+    </div>
+  }
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="abrirModal()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

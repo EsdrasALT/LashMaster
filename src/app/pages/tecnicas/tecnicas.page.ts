@@ -34,8 +34,8 @@ export class TecnicasPage {
     addIcons({ trash, create, timeOutline, cashOutline, add });
   }
 
-  async abrirModal(tecnica?: Tecnica) {
-    (document.activeElement as HTMLElement)?.blur(); // Remove o conflito de foco visual (aria-hidden)
+async abrirModal(tecnica?: Tecnica) {
+    (document.activeElement as HTMLElement)?.blur(); 
 
     const modal = await this.modalCtrl.create({
       component: TecnicaModalComponent,
@@ -47,15 +47,23 @@ export class TecnicasPage {
     const { data } = await modal.onWillDismiss();
     if (data) {
       try {
-        if (tecnica) {
+        if (data.action === 'delete') {
+          await this.remover(data.id);
+        } 
+        else if (tecnica) {
           await this.tecnicasService.atualizar(data);
           this.toast.disparar('Técnica atualizada com sucesso!');
-        } else {
-          await this.tecnicasService.adicionar(data);
+        } 
+        else {
+          // AQUI ESTÁ A CORREÇÃO: Removemos o 'id' (undefined) antes de enviar ao Firebase
+          const { id, ...dadosNovaTecnica } = data;
+          
+          await this.tecnicasService.adicionar(dadosNovaTecnica);
           this.toast.disparar('Técnica adicionada com sucesso!');
         }
       } catch (error) {
-        this.toast.disparar('Erro ao salvar técnica.');
+        console.error('Erro detalhado no Firebase:', error);
+        this.toast.disparar('Erro ao processar a técnica.');
       }
     }
   }

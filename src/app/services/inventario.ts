@@ -55,6 +55,19 @@ export class InventarioService implements OnDestroy {
     });
   }
 
+// NOVA FUNÇÃO: Atualiza com uma data específica escolhida no calendário
+  async alterarDataAbertura(novaDataIso: string): Promise<void> {
+    await runInInjectionContext(this.injector, async () => {
+      const ref = doc(this.firestore, this.DOC_PATH);
+      // Converte a string ISO do calendário de volta para Data e envia para o Firebase
+      const novaData = new Date(novaDataIso);
+      await setDoc(ref, {
+        dataAberturaCola: Timestamp.fromDate(novaData),
+        diasValidade: 30,
+      }, { merge: true });
+    });
+  }
+  
   ngOnDestroy() {
     if (this.unsubscribe) this.unsubscribe();
   }
